@@ -19,7 +19,7 @@
 //#define WINSIZE 4  // the window size
 
 // switch ISSE optimizaton:
-#define ISSE 1
+#define ISSE 0
 
 // pixel_formats
 #define RGBA 33

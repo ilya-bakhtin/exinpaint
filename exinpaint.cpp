@@ -48,8 +48,18 @@ public:
 
 //Here is the acutal constructor code used
 ExInpaint::ExInpaint(PClip _child, PClip _maskclip, int _color, int _dilate, int _xsize, int _ysize, int _radius, int _maxsteps, IScriptEnvironment* env):
-
-	GenericVideoFilter(_child), maskclip(_maskclip), color(_color), dilate(_dilate), xsize(_xsize), ysize(_ysize), radius(_radius), maxsteps(_maxsteps) {
+	GenericVideoFilter(_child),
+	maskclip(_maskclip),
+	color(_color),
+	dilate(_dilate),
+	xsize(_xsize),
+	ysize(_ysize),
+	radius(_radius),
+	maxsteps(_maxsteps),
+	inp(nullptr),
+	bufferYUV(nullptr),
+	buffermaskYUV(nullptr)
+{
   // This is the implementation of the constructor.
   // The child clip (source clip) is inherited by the GenericVideoFilter,
   //  where the following variables gets defined:
