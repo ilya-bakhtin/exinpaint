@@ -1,0 +1,119 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <meta http-equiv="Content-Language" content="en-us">
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>ExInpaint</title>
+<link rel="stylesheet" type="text/css" href="../avisynth.css">
+
+</head>
+<body>
+<h1>ExInpaint</h1>
+<h2>Abstract</h2>
+<b>author:</b> Alexander Balakhnin ('Fizick')
+<br><b>version:</b> 0.2
+<br><b>download:</b> <a href="http://avisynth.org.ru/">http://avisynth.org.ru/</a> <br>
+<b>category:</b>  Masked operation <br>
+<b>requirements:</b> RGB24, RGB32, YV12, YUY2 color format<br>
+<hr>
+
+<p> Exemplar-Based Image Inpainting - removing large objects from images.</p>
+<p>Selected objects has been replaced by a visually plausible background 
+that mimics the appearance of the source region.
+Unlike other inpainting tools (logo removers), this filter does not blur image "holes". 
+It tries to replace holes by similar texture elements (patches, exemplars, blocks) from frame image area,
+taking into account the image special points (with estimated confidence and priority).
+Block inpainting is started at hole border and propagates to its internal area, with isophote as a direction. 
+</p>
+<p>Algorithm is based on article: Object Removal by Exemplar-Based Inpainting.
+A. Criminisi, P. Perez, K. Toyama. In Proc. Conf. Comp. Vision Pattern Rec., Madison, WI, Jun 2003.
+http://research.microsoft.com/vision/cambridge/papers/Criminisi_cvpr03.pdf
+</p>
+
+<h2>Syntax and parameters</h2>
+<p><code>ExInpaint</code> (<var>clip, clip "mask", int "color", int "dilate" int "xsize", int "ysize", int "radius", int "steps")</var></p>
+<p>very first parameter is source clip. If mask clip is omitted and source clip is RGB32
+ then its alpha channel is used as a mask with threshold = 127 
+ (all pixels with correspondent alpha 128-255 will be inpainted). 
+ In other cases, the mask is taken from mask clip and processed differently.
+</p>
+<p><var>mask</var> : clip with mask. Must be same format and size as source clip.
+</p>
+<p><var>color</var> : color of mask in mask clip (if used). 
+Pixels with this color ONLY will be considered as a mask. (default = $FFFFFF as pure white for RGB).
+Note: for YUV color space the color value is in YUV (like color_yuv in ColorYUV filter).
+</p>
+<p><var>dilate</var> : (experimental) flags of mask dilation. 
+0 - do not dilate, 1 - horizontal dilate, 2 - vertical dilate, 3 - all directions dilate.  Default=0. 
+</p>
+<p><var>xsize, ysize</var> : horizontal and vertical patch (block) size to search and inpaint.
+Patch should be slightly larger than the largest distinguishable texture element. 
+(default=8)
+</p>
+<p><var>radius</var> : search radius for similar block. Should be greater than doubled patch size 
+and greater than maximal hole radius. The greater, the slower. Set to 0 for auto-estimated value (default).
+</p>
+<p><var>steps</var> : limit number of inpainting steps for debug (default=100000, almost not limited).
+</p>
+
+<h2>Features and limitations</h2>
+<p>It is slow, not optimized, especially for large radius.</p>
+<p>It is spatial filter developed for still images. Only current frame is used. 
+So, we can see temporal instability in this version.</p>
+<p>Potentially it may be used for logo removal, film restoration (spots and scratches removal), 
+and filling of empty or damaged areas after VHS capture or motion compensation.</p>
+<p>It can be implemented differently, may be as a part of MVTools. Current version is mostly for testing.</p>
+<p>For logo removing and similar tasks you can also try XLogo, AVSInpaint, Greycstoration inpainting filters.</p>
+
+<h2>Examples</h2>
+<h4>Inpainting of damaged or inreased borders</h4>
+<p>Letterboxed frame with blue mask at borders (of course, we could mask not only border):</p>
+<img src="masked.jpg" alt="masked" width="352" height="240">
+<p>Inpainted frame which was restored from the masked frame (nice flowers, tree and house textures):</p>
+<img src="inpainted.jpg" alt="inpainted" width="352" height="240">
+<p>Original frame to compare (some hidden details are different of course):</p>
+<img src="original.jpg" alt="original" width="352" height="240">
+<p>Used script to produce the example:
+<pre>loadplugin("exinpaint.dll")
+AVISource("G:\flower\sflowg.avi")
+converttorgb
+i=last
+c=letterbox(16,16,16,16,color=$0000ff) # blue mask
+# (for some reason blue is $0000FE in JPG image)
+exinpaint(c,c,color=$0000ff) # use source clip as mask clip
+interleave(c,last,i)
+</pre>
+</p>
+
+<h2>Discussion</h2>
+<p><a href="http://forum.doom9.org/showthread.php?t=133773">
+http://forum.doom9.org/showthread.php?t=133773</a></p>
+
+<h2>Revisions</h2>
+
+<p>Version 0.1 (13.01.2008)</p>
+<ul>
+<li>First version. Released with source code under the GNU GPL license</li>
+</ul>
+<p>Version 0.2 at 26 January 2008</p>
+<ul>
+<li> even patch sizes instead of odd (with some appropriate changes)</li>
+<li> assembler MMX optimization of PatchTexture</li>
+<li> use SAD instead of SSD</li>
+<li> local max priority updating</li>
+<li> option to estimate search radius automatically</li>
+<li> added YUY2 format (internal YUV24)</li>
+<li> added dilation of mask</li>
+</ul>
+<p>Version 0.2.0 (16.09.2009, same binary)</p>
+<li> fixed documentation</li>
+<li> added Russian doc</li>
+
+<p>Version 0.2.0.0 (15.09.2011, same binary)</p>
+<li>fixad doc for dilate.</li>
+
+<h3><a href="exinpaint01.zip">Download ExInpaint version 0.1</a></h3>
+<h3><a href="exinpaint0200.zip">Download ExInpaint version 0.2.0.0</a></h3>
+
+</body>
+</html>
